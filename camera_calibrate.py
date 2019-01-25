@@ -64,15 +64,15 @@ def undistort(mtx, dist, img, dst_file_name):
     dst = cv2.undistort(img, mtx, dist, None, mtx)
     # cv2.imwrite(dst_file_name, dst)
 
-    # dst = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)
-    print("Visualize undistortion")
-    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
-    ax1.imshow(img)
-    ax1.set_title('Original Image', fontsize=30)
-    ax2.imshow(dst)
-    ax2.set_title('Undistorted Image', fontsize=30)
-    plt.savefig(dst_file_name)
-
+    dst = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)
+    # print("Visualize undistortion")
+    # f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
+    # ax1.imshow(img)
+    # ax1.set_title('Original Image', fontsize=30)
+    # ax2.imshow(dst)
+    # ax2.set_title('Undistorted Image', fontsize=30)
+    # plt.savefig(dst_file_name)
+    return dst
 
 if __name__ == "__main__":
     img = cv2.imread('./camera_cal/calibration1.jpg')

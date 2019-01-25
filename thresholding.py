@@ -75,7 +75,7 @@ def combine_threshold(gray_image):
     return combined
 
 
-def hls_channel_threshold(hls_img, h_thresh=(170, 255), l_thresh=(170, 255), s_thresh=(170, 255)):
+def hls_channel_threshold(hls_img, h_thresh=(220, 255), l_thresh=(220, 255), s_thresh=(220, 255)):
     hls_img = np.copy(hls_img)
     h_channel = hls_img[:, :, 0]
     l_channel = hls_img[:, :, 1]
@@ -108,6 +108,34 @@ def bgr_channel_threshold(bgr_img, b_thresh=(250, 255), g_thresh=(250, 255), r_t
     r_binary[(r_channel >= r_thresh[0]) & (r_channel <= r_thresh[1])] = 1
     return b_binary, g_binary, r_binary
 
+# Define a function that thresholds the L-channel of HLS
+# Use exclusive lower bound (>) and inclusive upper (<=)
+def hls_lthresh(img, thresh=(220, 255)):
+    # 1) Convert to HLS color space
+    hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+    hls_l = hls[:,:,1]
+    hls_l = hls_l*(255/np.max(hls_l))
+    # 2) Apply a threshold to the L channel
+    binary_output = np.zeros_like(hls_l)
+    binary_output[(hls_l > thresh[0]) & (hls_l <= thresh[1])] = 1
+    # 3) Return a binary image of threshold result
+    return binary_output
+
+# Define a function that thresholds the B-channel of LAB
+# Use exclusive lower bound (>) and inclusive upper (<=), OR the results of the thresholds (B channel should capture
+# yellows)
+def lab_bthresh(img, thresh=(190,255)):
+    # 1) Convert to LAB color space
+    lab = cv2.cvtColor(img, cv2.COLOR_RGB2Lab)
+    lab_b = lab[:,:,2]
+    # don't normalize if there are no yellows in the image
+    if np.max(lab_b) > 175:
+        lab_b = lab_b*(255/np.max(lab_b))
+    # 2) Apply a threshold to the L channel
+    binary_output = np.zeros_like(lab_b)
+    binary_output[((lab_b > thresh[0]) & (lab_b <= thresh[1]))] = 1
+    # 3) Return a binary image of threshold result
+    return binary_output
 
 def combine_with_or(*channels):
     combined = None
@@ -137,15 +165,36 @@ def pipeline(img):
     img = np.copy(img)
     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     hls_image = cv2.cvtColor(img, cv2.COLOR_BGR2HLS).astype(np.float)
+#    img_LThresh = hls_lthresh(img)
+#    img_BThresh = lab_bthresh(img)
+#
+#    combined = np.zeros_like(img_BThresh)
+#    combined[(img_LThresh == 1) | (img_BThresh == 1)] = 1
 
+#    combined = combine_with_or(
+#        abs_sobel_thresh(gray_image, orient='x', sobel_kernel=25, thresh=(50, 150)),
+#        combine_with_or(
+#            *bgr_channel_threshold(img, b_thresh=(220, 255), g_thresh=(220, 255), r_thresh=(220, 255))
+#        ),
+#        combine_with_and(
+#            hls_channel_threshold(hls_image, s_thresh=(220, 255))[2],
+#            abs_sobel_thresh(gray_image, orient='x', sobel_kernel=5, thresh=(10, 100))
+#        ),
+#        combine_with_or(
+#            img_BThresh
+#        )
+#    )
+#        
     combined = combine_with_or(
         abs_sobel_thresh(gray_image, orient='x', sobel_kernel=25, thresh=(50, 150)),
         combine_with_or(
             *bgr_channel_threshold(img, b_thresh=(220, 255), g_thresh=(220, 255), r_thresh=(220, 255))
         ),
         combine_with_and(
-            hls_channel_threshold(hls_image, s_thresh=(170, 255))[2],
+            hls_channel_threshold(hls_image, s_thresh=(220, 255))[2],
             abs_sobel_thresh(gray_image, orient='x', sobel_kernel=5, thresh=(10, 100))
         )
-    )
+    )       
+        
+        
     return combined

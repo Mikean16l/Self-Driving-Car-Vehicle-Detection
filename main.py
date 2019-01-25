@@ -10,7 +10,7 @@ if __name__ == "__main__":
     yolo = YoloDetector()
     lane_finder = LaneFinder(save_original_images=True, object_detection_func=yolo.process_image_array)
     video_file = 'project_video.mp4'
-    # video_file = 'challenge_video.mp4'
+    # video_file = 'harder_challenge_video.mp4'
     # video_file = 'back_home.mov'
     # video_file = 'file01_2017322191247.mp4'
     clip = VideoFileClip(video_file, audio=False)

@@ -1,5 +1,5 @@
 import tensorflow as tf
-tf.python.control_flow_ops = tf
+##tf.python.control_flow_ops = tf
 import numpy as np
 import cv2
 
