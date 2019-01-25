@@ -138,3 +138,5 @@ ENV/
 
 
 video_images/
+*.mp4
+*.h5
